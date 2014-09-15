@@ -2,6 +2,10 @@ db:
   image: postgres:9.4
   ports:
     - "5432:5432"
+queue:
+  image: skxskx/beanstalkd
+  ports:
+    - "11300:11300"
 web:
   build: .
   command: bundle exec rails server --port=3000 --binding=0.0.0.0
@@ -11,3 +15,10 @@ web:
     - "3000:3000"
   links:
     - db
+    - queue
+worker:
+  build: .
+  command: bundle exec rake backburner:work
+  links:
+    - db
+    - queue
